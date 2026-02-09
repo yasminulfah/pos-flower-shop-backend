@@ -11,6 +11,7 @@ class Order extends Model
     protected $fillable = [
         'order_number',
         'user_id',
+        'customer_name',
         'shipping_id',
         'package_id',
         'subtotal',
@@ -19,6 +20,8 @@ class Order extends Model
         'greeting_card_price',
         'discount_amount',
         'grand_total',
+        'amount_paid',
+        'amount_change',
         'greeting_card_note',
         'delivery_at',
         'shipping_address',

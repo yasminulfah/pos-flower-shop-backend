@@ -54,13 +54,17 @@ class OrderController extends Controller
 
     public function checkout(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [ 
+            'customer_name' => 'nullable|string',
             'shipping_id' => 'nullable|exists:shippings,id',
             'package_id' => 'nullable|exists:packagings,id',
             'greeting_card_note' => 'nullable|string',
             'greeting_card_price' => 'nullable|numeric|min:0',
             'delivery_at' => 'nullable|date|after:now','shipping_address' => 'nullable|string',
             'payment_method' => 'required|string',
+            'grand_total' => 'nullable|numeric|min:0',
+            'amount_paid' => 'nullable|numeric|min:0',
+            'amount_change' => 'nullable|numeric',
             'items' => 'required|array',
             'items.*.product_variant_id' => 'required|exists:product_variants,id',
             'items.*.quantity' => 'required|integer|min:1',
@@ -109,6 +113,7 @@ class OrderController extends Controller
             $order = Order::create([
                 'order_number'        => 'UMA-' . strtoupper(uniqid()),
                 'user_id'             => auth()->id(),
+                'customer_name'       => $request->customer_name,
                 'shipping_id'         => $request->shipping_id,
                 'package_id'          => $request->package_id,
                 'subtotal'            => $subtotal,
@@ -120,6 +125,8 @@ class OrderController extends Controller
                 'shipping_address'    => $request->shipping_address,
                 'payment_method'      => $request->payment_method,
                 'grand_total'         => $grandTotal,
+                'amount_paid'         => $request->amount_paid ?? 0,
+                'amount_change'       => $request->amount_change ?? 0,
                 'status'              => $status,
                 'source'              => $request->source ?? 'online',
             ]);
