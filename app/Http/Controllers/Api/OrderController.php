@@ -1,0 +1,228 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use Illuminate\Http\Request;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\Shipping;
+use App\Models\Packaging;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+
+class OrderController extends Controller
+{
+    public function index(): JsonResponse
+    {
+        $orders = Order::where('user_id', auth()->id())
+            ->with([
+                'shipping', 
+                'packaging', 
+                'orderItems.productVariant.product' 
+            ])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $orders
+        ], 200);
+    }
+
+    public function show($id): JsonResponse
+    {
+        $order = Order::with([
+            'shipping', 
+            'packaging', 
+            'orderItems.productVariant.product' 
+        ])->find($id);
+
+        if (!$order || $order->user_id !== auth()->id()) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Order not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data'    => $order
+        ], 200);
+    }
+
+    public function checkout(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'shipping_id' => 'nullable|exists:shippings,id',
+            'package_id' => 'nullable|exists:packagings,id',
+            'greeting_card_note' => 'nullable|string',
+            'greeting_card_price' => 'nullable|numeric|min:0',
+            'delivery_at' => 'nullable|date|after:now','shipping_address' => 'nullable|string',
+            'payment_method' => 'required|string',
+            'items' => 'required|array',
+            'items.*.product_variant_id' => 'required|exists:product_variants,id',
+            'items.*.quantity' => 'required|integer|min:1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false, 
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // Hitung Subtotal & Cek Stok Varian
+            $subtotal = 0;
+            foreach ($request->items as $item) {
+                // Ambil data varian produk
+                $variant = \App\Models\ProductVariant::find($item['product_variant_id']);
+                
+                // Cek Stok Varian
+                if ($variant->stock < $item['quantity']) {
+                    throw new \Exception("Stock for variant '{$variant->name}' is insufficient.");
+                }
+
+                $itemSubtotal = $variant->price * $item['quantity'];
+                $subtotal += $itemSubtotal;
+
+                // Kurangi stok varian
+                $variant->decrement('stock', $item['quantity']);
+            }
+
+            // Hitung Biaya Tambahan
+            $shippingCost = $request->shipping_id ? Shipping::find($request->shipping_id)->base_shipping_cost : 0;
+            $packagingCost = $request->package_id ? Packaging::find($request->package_id)->base_packaging_cost : 0;
+            $greetingCardPrice = $request->greeting_card_price ?? 0;
+            
+            // Hitung Grand Total
+            $grandTotal = $subtotal + $shippingCost + $packagingCost + $greetingCardPrice;
+            
+            // set status
+            $status = $request->source === 'offline' ? 'paid' : 'pending';
+
+            // Buat Order
+            $order = Order::create([
+                'order_number'        => 'UMA-' . strtoupper(uniqid()),
+                'user_id'             => auth()->id(),
+                'shipping_id'         => $request->shipping_id,
+                'package_id'          => $request->package_id,
+                'subtotal'            => $subtotal,
+                'shipping_cost'       => $shippingCost,
+                'packaging_cost'      => $packagingCost,
+                'greeting_card_price' => $greetingCardPrice,
+                'greeting_card_note'  => $request->greeting_card_note,
+                'delivery_at'         => $request->delivery_at,
+                'shipping_address'    => $request->shipping_address,
+                'payment_method'      => $request->payment_method,
+                'grand_total'         => $grandTotal,
+                'status'              => $status,
+                'source'              => $request->source ?? 'online',
+            ]);
+
+            // Simpan Detail Item (order_items)
+            foreach ($request->items as $item) {
+                $variant = \App\Models\ProductVariant::find($item['product_variant_id']);
+                
+                $order->orderItems()->create([
+                    'product_variant_id' => $item['product_variant_id'],
+                    'quantity'           => $item['quantity'],
+                    'price_at_buy'       => $variant->price, 
+                    'subtotal'           => $variant->price * $item['quantity'],
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order created successfully',
+                'data'    => $order->load(['orderItems.productVariant.product']) 
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false, 
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getPendingOrders(): JsonResponse
+    {
+        // Ambil pesanan dari website (online) yang belum dibayar
+        $pendingOrders = Order::where('status', 'pending')
+            ->where('source', 'online')
+            ->with(['shipping', 'orderItems.productVariant.product'])
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $pendingOrders
+        ], 200);
+    }
+
+    public function updateStatus(Request $request, $id): JsonResponse
+    {
+        $order = Order::with('orderItems.productVariant')->find($id);
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|in:pending,processing,shipped,completed,cancelled',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false, 
+                'errors' => $validator->errors()
+                ], 422);
+        }
+
+        $order = Order::with('orderItems.productVariant')->find($id);
+
+        if (!$order) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Order not found'
+                ], 404);
+        }
+
+        $oldStatus = $order->status;
+        $newStatus = $request->status;
+
+        DB::beginTransaction();
+        try {
+            $order->update(['status' => $newStatus]);
+
+            // Logika Pengembalian Stok
+            if ($oldStatus !== 'cancelled' && $newStatus === 'cancelled') {
+                // Pesanan dibatalkan, kembalikan stok
+                foreach ($order->orderItems as $item) {
+                    $item->productVariant->increment('stock', $item->quantity);
+                }
+            } elseif ($oldStatus === 'cancelled' && $newStatus !== 'cancelled') {
+                // Pesanan aktif kembali, kurangi stok
+                foreach ($order->orderItems as $item) {
+                    $item->productVariant->decrement('stock', $item->quantity);
+                }
+            }
+
+            DB::commit();
+            return response()->json([
+                'success' => true, 
+                'data' => $order
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false, 
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+}
