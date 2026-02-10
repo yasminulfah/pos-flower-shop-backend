@@ -24,6 +24,9 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/packagings', [PackagingController::class, 'index']);
 Route::get('/shippings', [ShippingController::class, 'index']);
 
+// Image
+Route::get('/images/search', [App\Http\Controllers\Api\ImageController::class, 'search']);
+
 Route::middleware('auth:sanctum')->group(function () {
 
     // --- User & Profile ---
