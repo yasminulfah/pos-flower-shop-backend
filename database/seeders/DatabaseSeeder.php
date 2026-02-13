@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Shipping;
 use App\Models\Packaging;
+use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -12,7 +14,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Owner (Akses penuh, lihat laporan)
+        // 1. Owner
         User::create([
             'name' => 'Owner Uma Bloemist',
             'email' => 'owner@umabloemist.com',
@@ -21,7 +23,7 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // 2. Admin (Kelola Produk)
+        // 2. Admin
         User::create([
             'name' => 'Admin Uma Bloemist',
             'email' => 'admin@umabloemist.com',
@@ -30,16 +32,16 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // 3. Kasir (Operasional Toko & Konfirmasi Pre-Order)
+        // 3. Kasir
         User::create([
             'name' => 'Yasmin Cashier',
             'email' => 'yasmin@umabloemist.com',
             'password' => Hash::make('password123'),
-            'role' => 'cashier', // Pastikan di Migration enum-nya 'cashier' atau 'kasir' ya!
+            'role' => 'cashier',
             'is_active' => true,
         ]);
 
-        // 4. Customer Contoh (Untuk testing login di React)
+        // 4. Customer Contoh
         User::create([
             'name' => 'Ulfah Customer',
             'email' => 'budi@gmail.com',
@@ -48,7 +50,7 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // 5. Seed Data Shippings (Kurir)
+        // 5. Seed Data Shippings
         $shippings = [
             ['shipping_method' => 'Ambil di Toko', 'base_shipping_cost' => 0, 'estimated_time' => 'Depends on you', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
             ['shipping_method' => 'Kurir Internal (Flat)', 'base_shipping_cost' => 15000, 'estimated_time' => 'Everyday, 1-5 pm', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
@@ -60,15 +62,37 @@ class DatabaseSeeder extends Seeder
             Shipping::create($s);
         }
 
-        // 6. Seed Data Packaging (Kemasan)
+        // 6. Seed Data Packaging
         $packagings = [
-            ['packaging_name' => 'Paper Bag', 'base_packaging_cost' => 5000, 'packaging_image' => 'https://www.freepik.com/free-psd/isolated-brown-paper-bag-background_49178037.htm#fromView=keyword&page=1&position=1&uuid=b0c604ad-5c61-48f8-916a-903c53f245d5&query=Paper+bag+mockup', 'packaging_description' => 'Paper bag for small bouquets', 'created_at' => now(), 'updated_at' => now()],
-            ['packaging_name' => 'Paper Wrap Standard', 'base_packaging_cost' => 3000, 'packaging_image' => 'https://www.freepik.com/free-photo/top-view-bouquet-colorful-tulip-flowers-craft-paper-white-background-with-copy-space_8898090.htm#fromView=search&page=1&position=14&uuid=aa11a96b-9426-45ae-a298-17ed8c769cd0&query=Plastic+bouquet+mockup', 'packaging_description' => 'Basic paper wrap for single flower', 'created_at' => now(), 'updated_at' => now()],
-            ['packaging_name' => 'Box', 'base_packaging_cost' => 15000, 'packaging_image' => 'https://www.freepik.com/free-photo/brown-paper-box_3988596.htm#fromView=search&page=2&position=28&uuid=3944638e-069a-49a8-8d70-4488b1967543&query=box+large+mockup', 'packaging_description' => 'Shipping box', 'created_at' => now(), 'updated_at' => now()],
+            [
+                'packaging_name' => 'Paper Wrap Standard', 
+                'base_packaging_cost' => 0, 
+                'packaging_description' => 'Basic paper wrap for single flower', 
+                'packaging_image' => '/images/paper-wrap.jpg'
+            ],
+            [
+                'packaging_name' => 'Paper Bag', 
+                'base_packaging_cost' => 5000, 
+                'packaging_description' => 'Paper bag for small bouquets', 
+                'packaging_image' => '/images/paper-bag.jpg'
+            ],
+            [
+                'packaging_name' => 'Box', 
+                'base_packaging_cost' => 15000, 
+                'packaging_description' => 'Shipping box', 
+                'packaging_image' => '/images/gift-box.jpg'
+            ],
         ];
 
         foreach ($packagings as $p) {
-            Packaging::create($p);
+            Packaging::create([
+                'packaging_name' => $p['packaging_name'],
+                'base_packaging_cost' => $p['base_packaging_cost'],
+                'packaging_image' => $p['packaging_image'], 
+                'packaging_description' => $p['packaging_description'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
 
         // 7. Seed Categories
@@ -85,17 +109,121 @@ class DatabaseSeeder extends Seeder
 
         // 8. Seed Products & Variants
         $rose = \App\Models\Product::create([
-            'category_id' => 1, // Single Flower
+            'category_id' => 1,
             'product_name' => 'Holland Rose',
             'slug' => 'holland-rose-flower',
             'description' => 'Premium rose with big petals',
-            'main_image' => 'https://www.freepik.com/free-photo/red-rose-background_1182785.htm#fromView=search&page=1&position=41&uuid=04cbd56c-ad66-46e9-8539-2338905a90e1&query=holland+rose'
+            'main_image' => '/images/rose-main.jpg'
         ]);
 
         $rose->variants()->createMany([
-            ['product_id' => 1, 'variant_name' => 'Merah', 'price' => 15000, 'stock' => 50, 'sku' => 'ROSE-RED-' . strval(rand(100, 999)), 'detail_image' => 'https://pixabay.com/images/download/x-8940207_1920.jpg'],
-            ['product_id' => 1, 'variant_name' => 'Putih', 'price' => 15000, 'stock' => 30, 'sku' => 'ROSE-WHITE-' . strval(rand(100, 999)), 'detail_image' => 'https://pixabay.com/images/download/x-2390503_1920.jpg'],
-            ['product_id' => 1, 'variant_name' => 'Pink', 'price' => 17000, 'stock' => 4, 'sku' => 'ROSE-PINK-' . strval(rand(100, 999)), 'detail_image' => 'https://pixabay.com/images/download/x-1610932_1920.jpg'],
+            [
+                'product_id' => $rose->id,
+                'variant_name' => 'Red',
+                'price' => 15000,
+                'stock' => 50,
+                'sku' => 'ROSE-RED-' . strval(rand(100, 999)),
+                'detail_image' => '/images/rose-red.jpg' 
+            ],
+            [
+                'product_id' => $rose->id,
+                'variant_name' => 'White',
+                'price' => 15000,
+                'stock' => 30,
+                'sku' => 'ROSE-WHITE-' . strval(rand(100, 999)),
+                'detail_image' => '/images/rose-white.jpg'
+            ],
+            [
+                'product_id' => $rose->id,
+                'variant_name' => 'Pink',
+                'price' => 17000,
+                'stock' => 4,
+                'sku' => 'ROSE-PINK-' . strval(rand(100, 999)),
+                'detail_image' => '/images/rose-pink.jpg'
+            ],
+            [
+                'product_id' => $rose->id,
+                'variant_name' => 'Yellow',
+                'price' => 17000,
+                'stock' => 50,
+                'sku' => 'ROSE-YELLOW-' . strval(rand(100, 999)),
+                'detail_image' => '/images/rose-yellow.jpg'
+            ],
+            [
+                'product_id' => $rose->id,
+                'variant_name' => 'Orange',
+                'price' => 17000,
+                'stock' => 20,
+                'sku' => 'ROSE-ORANGE-' . strval(rand(100, 999)),
+                'detail_image' => '/images/rose-orange.jpg'
+            ],
+            [
+                'product_id' => $rose->id,
+                'variant_name' => 'Peach',
+                'price' => 17000,
+                'stock' => 20,
+                'sku' => 'ROSE-PEACH-' . strval(rand(100, 999)),
+                'detail_image' => '/images/rose-peach.jpg'
+            ],
+        ]);
+
+        $gerbera = \App\Models\Product::create([
+            'category_id' => 1,
+            'product_name' => 'gerbera',
+            'slug' => 'gerbera-flower',
+            'description' => 'Premium gerbera flower',
+            'main_image' => '/images/gerbera-main.jpg'
+        ]);
+
+        $rose->variants()->createMany([
+            [
+                'product_id' => $gerbera->id,
+                'variant_name' => 'Red',
+                'price' => 10000,
+                'stock' => 25,
+                'sku' => 'GERBERA-RED-' . strval(rand(100, 999)),
+                'detail_image' => '/images/gerbera-red.jpg' 
+            ],
+            [
+                'product_id' => $gerbera->id,
+                'variant_name' => 'White',
+                'price' => 10000,
+                'stock' => 25,
+                'sku' => 'GERBERA-WHITE-' . strval(rand(100, 999)),
+                'detail_image' => '/images/gerbera-white.jpg' 
+            ],
+            [
+                'product_id' => $gerbera->id,
+                'variant_name' => 'Pink',
+                'price' => 10000,
+                'stock' => 25,
+                'sku' => 'GERBERA-PINK-' . strval(rand(100, 999)),
+                'detail_image' => '/images/gerbera-pink.jpg' 
+            ],
+            [
+                'product_id' => $gerbera->id,
+                'variant_name' => 'Fuschia',
+                'price' => 10000,
+                'stock' => 25,
+                'sku' => 'GERBERA-FUSCHIA-' . strval(rand(100, 999)),
+                'detail_image' => '/images/gerbera-fuschia.jpg' 
+            ],
+            [
+                'product_id' => $gerbera->id,
+                'variant_name' => 'Yellow',
+                'price' => 10000,
+                'stock' => 25,
+                'sku' => 'GERBERA-YELLOW-' . strval(rand(100, 999)),
+                'detail_image' => '/images/gerbera-yellow.jpg' 
+            ],
+            [
+                'product_id' => $gerbera->id,
+                'variant_name' => 'Peach',
+                'price' => 10000,
+                'stock' => 25,
+                'sku' => 'GERBERA-PEACH-' . strval(rand(100, 999)),
+                'detail_image' => '/images/gerbera-peach.jpg' 
+            ],
         ]);
     }
 }
