@@ -162,9 +162,7 @@ class OrderController extends Controller
 
     public function getPendingOrders(): JsonResponse
     {
-        // Ambil pesanan dari website (online) yang belum dibayar
         $pendingOrders = Order::where('status', 'pending')
-            ->where('source', 'online')
             ->with(['shipping', 'orderItems.productVariant.product'])
             ->orderBy('created_at', 'asc')
             ->get();
@@ -173,6 +171,60 @@ class OrderController extends Controller
             'success' => true,
             'data'    => $pendingOrders
         ], 200);
+    }
+
+    public function holdOrder(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'customer_name' => 'nullable|string',
+            'items' => 'required|array',
+            'items.*.variant_id' => 'required|exists:product_variants,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'shipping_id' => 'required|exists:shippings,id',
+            'package_id' => 'required|exists:packagings,id',
+            'grand_total' => 'required|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        DB::beginTransaction();
+        try {
+            $order = Order::create([
+                'order_number' => 'HOLD-' . time(),
+                'customer_name' => $request->customer_name,
+                'shipping_id' => $request->shipping_id,
+                'package_id' => $request->package_id,
+                'grand_total' => $request->grand_total,
+                'status' => 'pending',
+                'source' => 'offline',
+                'payment_method' => 'cash',
+            ]);
+
+            // 2. Simpan Order Items
+            foreach ($request->items as $item) {
+                $order->orderItems()->create([
+                    'product_variant_id' => $item['variant_id'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                ]);
+                
+                $variant = ProductVariant::find($item['variant_id']);
+                $variant->decrement('stock', $item['quantity']);
+            }
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Order held successfully',
+                'data' => $order->load('orderItems.productVariant.product')
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 
     public function updateStatus(Request $request, $id): JsonResponse

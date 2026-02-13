@@ -42,7 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
     Route::post('/products', [ProductController::class, 'store']);
-    Route::post('/products/{id}', [ProductController::class, 'update']); // Pakai POST untuk upload file
+    Route::post('/products/{id}', [ProductController::class, 'update']); 
     Route::delete('/products/{id}', [ProductController::class, 'destroy']);
 
     // --- Admin Routes (Manajemen Shipping & Packaging) ---
@@ -58,5 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/order', [OrderController::class, 'checkout']);
     Route::get('/order/history', [OrderController::class, 'index']);
     Route::get('/order/{id}', [OrderController::class, 'show']);
-    Route::put('/order/{id}/status', [OrderController::class, 'updateStatus']); // Untuk Admin
+    Route::put('/order/{id}/status', [OrderController::class, 'updateStatus']); 
+    Route::post('/orders/hold', [OrderController::class, 'holdOrder']);
+    Route::get('/orders/pending', [OrderController::class, 'getPendingOrders']);
 });
