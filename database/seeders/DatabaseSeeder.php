@@ -169,13 +169,13 @@ class DatabaseSeeder extends Seeder
 
         $gerbera = \App\Models\Product::create([
             'category_id' => 1,
-            'product_name' => 'gerbera',
+            'product_name' => 'Gerbera',
             'slug' => 'gerbera-flower',
             'description' => 'Premium gerbera flower',
             'main_image' => '/images/gerbera-main.jpg'
         ]);
 
-        $rose->variants()->createMany([
+        $gerbera->variants()->createMany([
             [
                 'product_id' => $gerbera->id,
                 'variant_name' => 'Red',

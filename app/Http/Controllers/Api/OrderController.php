@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\Shipping;
 use App\Models\Packaging;
+use App\Models\ProductVariant;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -16,8 +17,7 @@ class OrderController extends Controller
 {
     public function index(): JsonResponse
     {
-        $orders = Order::where('user_id', auth()->id())
-            ->with([
+        $orders = Order::with([
                 'shipping', 
                 'packaging', 
                 'orderItems.productVariant.product' 
@@ -204,10 +204,16 @@ class OrderController extends Controller
 
             // 2. Simpan Order Items
             foreach ($request->items as $item) {
+
+                $price = $item['price'];
+                $quantity = $item['quantity'];
+                $subtotal = $price * $quantity;
+
                 $order->orderItems()->create([
                     'product_variant_id' => $item['variant_id'],
                     'quantity' => $item['quantity'],
-                    'price' => $item['price'],
+                    'price_at_buy' => $item['price'],
+                    'subtotal' => $subtotal,
                 ]);
                 
                 $variant = ProductVariant::find($item['variant_id']);
