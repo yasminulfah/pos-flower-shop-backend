@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
@@ -41,7 +42,7 @@ class ProductController extends Controller
             'main_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'variants' => 'required|array|min:1',
             'variants.*.variant_name' => 'required|string',
-            'variants.*.price' => 'requirred|numeric|min:0',
+            'variants.*.price' => 'required|numeric|min:0',
             'variants.*.stock' => 'required|integer|min:0',
             'variants.*.sku' => 'nullable|string|unique:product_variants,sku',
             'variants.*.detail_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -72,6 +73,11 @@ class ProductController extends Controller
              ]);
 
              foreach ($request->variants as $variant) {
+                $variantImagePath = null;
+                if (isset($variant['detail_image']) && $variant['detail_image'] instanceof \Illuminate\Http\UploadedFile) {
+                    $variantImagePath = $variant['detail_image']->store('products/variants', 'public');
+                }
+                
                 $product->variants()->create([
                     'variant_name' => $variant['variant_name'],
                     'price' => $variant['price'],
@@ -85,9 +91,11 @@ class ProductController extends Controller
              DB::commit();
              return response()->json([
                 'success' => true,
+                'message' => 'Product Created Successfully',
                 'data' => $product->load('variants')
-             ], 200);
-        } catch (\Exeption $e) {
+             ], 201);
+             
+        } catch (\Exception $e) {
             DB::rollBack();
 
             if ($imagePath && \Storage::disk('public')->exists($imagePath)) {
@@ -99,12 +107,6 @@ class ProductController extends Controller
                 'message' => 'Failed to Save Product: ' . $e->getMessage()
             ], 500);
         }
-       
-        return response()-> json([
-            'success' => true,
-            'message' => 'Product Created Successfully',
-            'data' => $product->load('variants')
-        ], 201);
     }
 
     /**
@@ -147,7 +149,7 @@ class ProductController extends Controller
                 Rule::unique('products', 'product_name')->ignore($product->id)
             ],
             'description' => 'sometimes|nullable|string|max:500',
-            'main_image' => 'sometimes|nullable|image|mimes:jpg,jpeg,pngwebp|max:2048',
+            'main_image' => 'sometimes|nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'is_active' => 'sometimes|boolean'
         ]);
 
@@ -199,7 +201,7 @@ class ProductController extends Controller
             return response()->json([
             'success' => true,
             'message' => 'Product Updated Successfully',
-            'data' => $product->load('variant')
+            'data' => $product->load('variants')
             ], 200);
 
         } catch (\Exception $e) {

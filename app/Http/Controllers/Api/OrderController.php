@@ -216,7 +216,7 @@ class OrderController extends Controller
                     'subtotal' => $subtotal,
                 ]);
                 
-                $variant = ProductVariant::find($item['variant_id']);
+                $variant = \App\Models\ProductVariant::find($item['variant_id']);
                 $variant->decrement('stock', $item['quantity']);
             }
 
