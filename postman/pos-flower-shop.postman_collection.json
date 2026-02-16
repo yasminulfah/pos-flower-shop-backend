@@ -76,12 +76,12 @@
                             "formdata": [
                                 {
                                     "key": "email",
-                                    "value": "user@example.com",
+                                    "value": "owner@umabloemist.com",
                                     "type": "text"
                                 },
                                 {
                                     "key": "password",
-                                    "value": "password",
+                                    "value": "password123",
                                     "type": "text"
                                 }
                             ]
@@ -181,7 +181,7 @@
                             "mode": "formdata",
                             "formdata": [
                                 {
-                                    "key": "name",
+                                    "key": "product_name",
                                     "value": "New Flower",
                                     "type": "text"
                                 },
@@ -191,17 +191,27 @@
                                     "type": "text"
                                 },
                                 {
-                                    "key": "price",
-                                    "value": "150000",
-                                    "type": "text"
-                                },
-                                {
                                     "key": "category_id",
                                     "value": "1",
                                     "type": "text"
                                 },
                                 {
-                                    "key": "image",
+                                    "key": "variants[0][variant_name]",
+                                    "value": "Red",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "variants[0][price]",
+                                    "value": "15000",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "variants[0][stock]",
+                                    "value": "50",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "main_image",
                                     "type": "file",
                                     "src": []
                                 }
@@ -233,7 +243,7 @@
                                     "type": "text"
                                 },
                                 {
-                                    "key": "name",
+                                    "key": "product_name",
                                     "value": "Updated Flower",
                                     "type": "text"
                                 }
@@ -301,8 +311,13 @@
                             "mode": "formdata",
                             "formdata": [
                                 {
-                                    "key": "name",
+                                    "key": "category_name",
                                     "value": "New Category",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "slug",
+                                    "value": "new-category",
                                     "type": "text"
                                 }
                             ]
@@ -328,7 +343,7 @@
                             "mode": "formdata",
                             "formdata": [
                                 {
-                                    "key": "name",
+                                    "key": "category_name",
                                     "value": "Updated Category",
                                     "type": "text"
                                 }
@@ -377,7 +392,7 @@
                         "header": [],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"items\": [\n        {\"product_id\": 1, \"quantity\": 2}\n    ],\n    \"shipping_id\": 1,\n    \"packaging_id\": 1\n}",
+                            "raw": "{\n    \"items\": [\n        {\"product_variant_id\": 1, \"quantity\": 2}\n    ],\n    \"shipping_id\": 1,\n    \"package_id\": 1,\n    \"payment_method\": \"cash\"\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -391,6 +406,33 @@
                             ],
                             "path": [
                                 "order"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Hold Order",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"customer_name\": \"John Doe\",\n    \"items\": [\n        {\"variant_id\": 1, \"quantity\": 1}\n    ],\n    \"shipping_id\": 1,\n    \"package_id\": 1,\n    \"grand_total\": 20000\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/order/hold",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "order",
+                                "hold"
                             ]
                         }
                     },
@@ -473,13 +515,18 @@
                             "mode": "formdata",
                             "formdata": [
                                 {
-                                    "key": "name",
+                                    "key": "packaging_name",
                                     "value": "Box",
                                     "type": "text"
                                 },
                                 {
-                                    "key": "price",
+                                    "key": "base_packaging_cost",
                                     "value": "5000",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "packaging_description",
+                                    "value": "A sturdy box",
                                     "type": "text"
                                 }
                             ]
@@ -527,13 +574,18 @@
                             "mode": "formdata",
                             "formdata": [
                                 {
-                                    "key": "name",
+                                    "key": "shipping_method",
                                     "value": "JNE Regular",
                                     "type": "text"
                                 },
                                 {
-                                    "key": "price",
+                                    "key": "base_shipping_cost",
                                     "value": "10000",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "estimated_time",
+                                    "value": "2-3 Days",
                                     "type": "text"
                                 }
                             ]

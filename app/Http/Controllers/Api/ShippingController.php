@@ -28,10 +28,10 @@ class ShippingController
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'method_name'    => 'required|string|max:100',
-            'base_cost'      => 'required|numeric|min:0',
-            'estimated_time' => 'required|string|max:50', 
-            'is_active'      => 'boolean',
+            'shipping_method'    => 'required|string|max:100',
+            'base_shipping_cost' => 'required|numeric|min:0',
+            'estimated_time'     => 'required|string|max:50', 
+            'is_active'          => 'boolean',
         ]);
 
         if ($validator->fails()) {
@@ -60,7 +60,7 @@ class ShippingController
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Shipping $shipping): JsonResponse
+    public function update(Request $request, $id): JsonResponse
     {
         $shipping = Shipping::find($id);
         if (!$shipping) {
@@ -71,10 +71,10 @@ class ShippingController
         }
 
         $validator = Validator::make($request->all(), [
-            'method_name'    => 'sometimes|required|string|max:100',
-            'base_cost'      => 'sometimes|required|numeric|min:0',
-            'estimated_time' => 'sometimes|required|string|max:50',
-            'is_active'      => 'sometimes|boolean',
+            'shipping_method'    => 'sometimes|required|string|max:100',
+            'base_shipping_cost' => 'sometimes|required|numeric|min:0',
+            'estimated_time'     => 'sometimes|required|string|max:50',
+            'is_active'          => 'sometimes|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -103,7 +103,7 @@ class ShippingController
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Shipping $shipping): JsonResponse
+    public function destroy($id): JsonResponse
     {
         $shipping = Shipping::find($id);
         if (!$shipping) {

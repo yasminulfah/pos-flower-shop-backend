@@ -20,12 +20,6 @@ Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
 Route::get('/categories', [CategoryController::class, 'index']);
 
-// Data Shipping & Packaging (Untuk ditampilkan di form Checkout)
-Route::get('/packagings', [PackagingController::class, 'index']);
-Route::get('/shippings', [ShippingController::class, 'index']);
-
-// Image
-Route::get('/images/search', [App\Http\Controllers\Api\ImageController::class, 'search']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -34,7 +28,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/update', [UserController::class, 'update']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
+    Route::get('/my-orders', [OrderController::class, 'myOrders']);
+    Route::get('/my-orders/{id}', [OrderController::class, 'showMyOrder']);
+    Route::post('/my-orders/{id}/cancel', [OrderController::class, 'cancelOrder']);
+
     Route::get('/dashboard-stats', [DashboardController::class, 'index']);
+    Route::get('/download-report', [DashboardController::class, 'downloadReport']);
 
     // --- Admin Routes (Manajemen Produk & Kategori) ---
     Route::post('/categories', [CategoryController::class, 'store']);
@@ -46,10 +45,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/products/{id}', [ProductController::class, 'destroy']);
 
     // --- Admin Routes (Manajemen Shipping & Packaging) ---
+    Route::get('/packagings', [PackagingController::class, 'index']);
     Route::post('/packagings', [PackagingController::class, 'store']);
     Route::put('/packagings/{id}', [PackagingController::class, 'update']);
     Route::delete('/packagings/{id}', [PackagingController::class, 'destroy']);
-
+    
+    Route::get('/shippings', [ShippingController::class, 'index']);
     Route::post('/shippings', [ShippingController::class, 'store']);
     Route::put('/shippings/{id}', [ShippingController::class, 'update']);
     Route::delete('/shippings/{id}', [ShippingController::class, 'destroy']);

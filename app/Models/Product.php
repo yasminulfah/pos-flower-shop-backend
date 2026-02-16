@@ -11,9 +11,12 @@ class Product extends Model
 {
     use SoftDeletes;
     
+    protected $table = 'products';
+    
     protected $fillable = [
         'category_id',
         'product_name',
+        'slug',
         'description',
         'main_image',
     ];
