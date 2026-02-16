@@ -10,33 +10,56 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage; 
 
 class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse 
     {
-        $products = Product::with(['variants' => function($query){$query->where('is_active', true);
-        }])
-        ->where('is_active', true)
-        ->get();
-    
+        $search = $request->query('search');
+        $categoryId = $request->query('category_id');
+        $status = $request->query('status');
+        $limit = $request->query('limit', 5); 
+
+        $query = Product::with(['category', 'variants' => function($query){
+            $query->where('is_active', true);
+        }]);
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('product_name', 'like', '%' . $search . '%')
+                  ->orWhere('description', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($categoryId) {
+            $query->where('category_id', $categoryId);
+        }
+
+        if ($status) {
+            $isActive = ($status === 'active');
+            $query->where('is_active', $isActive);
+        } else {
+            $query->where('is_active', true);
+        }
+
+        $products = $query->orderBy('created_at', 'desc')->paginate($limit);
+        
         return response()->json([
             'success' => true,
-            'data' => $products
+            'data' => $products 
         ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'category_id' => 'required|exists:categories,id',
-            'product_name' => 'required|string|max:100|unique:product,product_name',
+            'product_name' => 'required|string|max:100|unique:products,product_name', 
             'slug' => 'nullable|string|unique:products,slug',
             'description' => 'nullable|string|max:500',
             'main_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -83,7 +106,7 @@ class ProductController extends Controller
                     'price' => $variant['price'],
                     'stock' => $variant['stock'],
                     'sku' => $variant['sku'],
-                    'detail_image' => $variant['detail_image'] ?? null,
+                    'detail_image' => $variantImagePath, 
                     'is_active' => true,
                 ]);
              }
@@ -93,13 +116,13 @@ class ProductController extends Controller
                 'success' => true,
                 'message' => 'Product Created Successfully',
                 'data' => $product->load('variants')
-             ], 201);
-             
+              ], 201);
+              
         } catch (\Exception $e) {
             DB::rollBack();
 
-            if ($imagePath && \Storage::disk('public')->exists($imagePath)) {
-                \Storage::disk('public')->delete($imagePath);
+            if ($imagePath && Storage::disk('public')->exists($imagePath)) {
+                Storage::disk('public')->delete($imagePath);
             }
 
             return response()->json([
@@ -109,9 +132,6 @@ class ProductController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id): JsonResponse
     {
         $product = Product::with('variants')->find($id);
@@ -129,16 +149,13 @@ class ProductController extends Controller
         ], 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id): JsonResponse
     {
         $product = Product::find($id);
         if (!$product) {
             return response()->json([
                 'success' => false,
-                'errors' => 'Product Not Found'
+                'message' => 'Product Not Found' 
             ], 404);
         }
 
@@ -172,7 +189,9 @@ class ProductController extends Controller
             }
 
             if ($request->has('product_name')) {
-                $data['slug'] = Str::slug($request->product_name) . '-' . Str::random(5);
+                if ($product->product_name !== $request->product_name) {
+                    $data['slug'] = Str::slug($request->product_name) . '-' . Str::random(5);
+                }
             }
 
             if ($request->has('variants')) {
@@ -181,15 +200,21 @@ class ProductController extends Controller
                 $product->variants()->whereNotIn('id', $variantIds)->delete();
 
                 foreach ($request->variants as $v) {
-                    $product->variants()->updateOrcreate(
+                    $variantData = [
+                        'variant_name' => $v['variant_name'],
+                        'price' => $v['price'],
+                        'stock' => $v['stock'],
+                        'sku' => $v['sku'] ?? null,
+                        'is_active' => $v['is_active'] ?? true,
+                    ];
+
+                    if (isset($v['detail_image']) && $v['detail_image'] instanceof \Illuminate\Http\UploadedFile) {
+                        $variantData['detail_image'] = $v['detail_image']->store('products/variants', 'public');
+                    }
+
+                    $product->variants()->updateOrCreate(
                         ['id' => $v['id'] ?? null],
-                        [
-                            'variant_name' => $v['variant_name'],
-                            'price' => $v['price'],
-                            'stock' => $v['stock'],
-                            'sku' => $v['sku'] ?? null,
-                            'is_active' => $v['is_active'] ?? true,
-                        ]
+                        $variantData
                     );
                 }
             }
@@ -199,9 +224,9 @@ class ProductController extends Controller
             DB::commit();
             
             return response()->json([
-            'success' => true,
-            'message' => 'Product Updated Successfully',
-            'data' => $product->load('variants')
+                'success' => true,
+                'message' => 'Product Updated Successfully',
+                'data' => $product->load('variants')
             ], 200);
 
         } catch (\Exception $e) {
@@ -213,9 +238,6 @@ class ProductController extends Controller
         }  
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id): JsonResponse
     {
         $product = Product::find($id);
