@@ -59,19 +59,19 @@ class DatabaseSeeder extends Seeder
                 'packaging_name' => 'Paper Wrap Standard', 
                 'base_packaging_cost' => 0, 
                 'packaging_description' => 'Basic paper wrap for single flower', 
-                'packaging_image' => '/images/paper-wrap.jpg'
+                'packaging_image' => '/storage/images/paper-wrap.jpg'
             ],
             [
                 'packaging_name' => 'Paper Bag', 
                 'base_packaging_cost' => 5000, 
                 'packaging_description' => 'Paper bag for small bouquets', 
-                'packaging_image' => '/images/paper-bag.jpg'
+                'packaging_image' => '/storage/images/paper-bag.jpg'
             ],
             [
                 'packaging_name' => 'Box', 
                 'base_packaging_cost' => 15000, 
                 'packaging_description' => 'Shipping box', 
-                'packaging_image' => '/images/gift-box.jpg'
+                'packaging_image' => '/storage/images/gift-box.jpg'
             ],
         ];
 
@@ -103,7 +103,7 @@ class DatabaseSeeder extends Seeder
             'product_name' => 'Holland Rose',
             'slug' => 'holland-rose-flower',
             'description' => 'Premium rose with big petals',
-            'main_image' => '/images/rose-main.jpg'
+            'main_image' => '/storage/images/rose-main.jpg'
         ]);
 
         $rose->variants()->createMany([
@@ -113,7 +113,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 15000,
                 'stock' => 50,
                 'sku' => 'ROSE-RED-' . strval(rand(100, 999)),
-                'detail_image' => '/images/rose-red.jpg' 
+                'detail_image' => '/storage/images/rose-red.jpg' 
             ],
             [
                 'product_id' => $rose->id,
@@ -121,7 +121,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 15000,
                 'stock' => 30,
                 'sku' => 'ROSE-WHITE-' . strval(rand(100, 999)),
-                'detail_image' => '/images/rose-white.jpg'
+                'detail_image' => '/storage/images/rose-white.jpg'
             ],
             [
                 'product_id' => $rose->id,
@@ -129,7 +129,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 17000,
                 'stock' => 4,
                 'sku' => 'ROSE-PINK-' . strval(rand(100, 999)),
-                'detail_image' => '/images/rose-pink.jpg'
+                'detail_image' => '/storage/images/rose-pink.jpg'
             ],
             [
                 'product_id' => $rose->id,
@@ -137,7 +137,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 17000,
                 'stock' => 50,
                 'sku' => 'ROSE-YELLOW-' . strval(rand(100, 999)),
-                'detail_image' => '/images/rose-yellow.jpg'
+                'detail_image' => '/storage/images/rose-yellow.jpg'
             ],
             [
                 'product_id' => $rose->id,
@@ -145,7 +145,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 17000,
                 'stock' => 20,
                 'sku' => 'ROSE-ORANGE-' . strval(rand(100, 999)),
-                'detail_image' => '/images/rose-orange.jpg'
+                'detail_image' => '/storage/images/rose-orange.jpg'
             ],
             [
                 'product_id' => $rose->id,
@@ -153,7 +153,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 17000,
                 'stock' => 20,
                 'sku' => 'ROSE-PEACH-' . strval(rand(100, 999)),
-                'detail_image' => '/images/rose-peach.jpg'
+                'detail_image' => '/storage/images/rose-peach.jpg'
             ],
         ]);
 
@@ -162,7 +162,7 @@ class DatabaseSeeder extends Seeder
             'product_name' => 'Gerbera',
             'slug' => 'gerbera-flower',
             'description' => 'Premium gerbera flower',
-            'main_image' => '/images/gerbera-main.jpg'
+            'main_image' => '/storage/images/gerbera-main.jpg'
         ]);
 
         $gerbera->variants()->createMany([
@@ -172,7 +172,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 10000,
                 'stock' => 25,
                 'sku' => 'GERBERA-RED-' . strval(rand(100, 999)),
-                'detail_image' => '/images/gerbera-red.jpg' 
+                'detail_image' => '/storage/images/gerbera-red.jpg' 
             ],
             [
                 'product_id' => $gerbera->id,
@@ -180,7 +180,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 10000,
                 'stock' => 25,
                 'sku' => 'GERBERA-WHITE-' . strval(rand(100, 999)),
-                'detail_image' => '/images/gerbera-white.jpg' 
+                'detail_image' => '/storage/images/gerbera-white.jpg' 
             ],
             [
                 'product_id' => $gerbera->id,
@@ -188,7 +188,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 10000,
                 'stock' => 25,
                 'sku' => 'GERBERA-PINK-' . strval(rand(100, 999)),
-                'detail_image' => '/images/gerbera-pink.jpg' 
+                'detail_image' => '/storage/images/gerbera-pink.jpg' 
             ],
             [
                 'product_id' => $gerbera->id,
@@ -196,7 +196,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 10000,
                 'stock' => 25,
                 'sku' => 'GERBERA-FUSCHIA-' . strval(rand(100, 999)),
-                'detail_image' => '/images/gerbera-fuschia.jpg' 
+                'detail_image' => '/storage/images/gerbera-fuschia.jpg' 
             ],
             [
                 'product_id' => $gerbera->id,
@@ -204,7 +204,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 10000,
                 'stock' => 25,
                 'sku' => 'GERBERA-YELLOW-' . strval(rand(100, 999)),
-                'detail_image' => '/images/gerbera-yellow.jpg' 
+                'detail_image' => '/storage/images/gerbera-yellow.jpg' 
             ],
             [
                 'product_id' => $gerbera->id,
@@ -212,7 +212,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 10000,
                 'stock' => 25,
                 'sku' => 'GERBERA-PEACH-' . strval(rand(100, 999)),
-                'detail_image' => '/images/gerbera-peach.jpg' 
+                'detail_image' => '/storage/images/gerbera-peach.jpg' 
             ],
         ]);
 
@@ -221,7 +221,7 @@ class DatabaseSeeder extends Seeder
             'product_name' => 'Graduation',
             'slug' => 'graduation-bouquet',
             'description' => 'Premium graduation bouquet',
-            'main_image' => '/images/graduation-main.jpg'
+            'main_image' => '/storage/images/graduation-main.jpg'
         ]);
 
         $graduation->variants()->createMany([
@@ -231,7 +231,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 200000,
                 'stock' => 10,
                 'sku' => 'GRAD-LARGE-' . strval(rand(100, 999)),
-                'detail_image' => '/images/grad-large.jpg' 
+                'detail_image' => '/storage/images/grad-large.jpg' 
             ],
             [
                 'product_id' => $graduation->id,
@@ -239,7 +239,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 150000,
                 'stock' => 10,
                 'sku' => 'GRAD-MEDIUM-' . strval(rand(100, 999)),
-                'detail_image' => '/images/grad-medium.jpg' 
+                'detail_image' => '/storage/images/grad-medium.jpg' 
             ],
             [
                 'product_id' => $graduation->id,
@@ -247,7 +247,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 80000,
                 'stock' => 10,
                 'sku' => 'GRAD-SMALL-' . strval(rand(100, 999)),
-                'detail_image' => '/images/grad-small.jpg' 
+                'detail_image' => '/storage/images/grad-small.jpg' 
             ],
         ]);
 
@@ -256,7 +256,7 @@ class DatabaseSeeder extends Seeder
             'product_name' => 'Eid Bouquet',
             'slug' => 'eid-bouquet',
             'description' => 'Premium eid bouquet',
-            'main_image' => '/images/eid-main.jpg'
+            'main_image' => '/storage/images/eid-main.jpg'
         ]);
 
         $eid->variants()->createMany([
@@ -266,7 +266,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 200000,
                 'stock' => 10,
                 'sku' => 'EID-LARGE-' . strval(rand(100, 999)),
-                'detail_image' => '/images/eid-large.jpg' 
+                'detail_image' => '/storage/images/eid-large.jpg' 
             ],
             [
                 'product_id' => $eid->id,
@@ -274,7 +274,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 150000,
                 'stock' => 10,
                 'sku' => 'EID-MEDIUM-' . strval(rand(100, 999)),
-                'detail_image' => '/images/eid-medium.jpg' 
+                'detail_image' => '/storage/images/eid-medium.jpg' 
             ],
             [
                 'product_id' => $eid->id,
@@ -282,7 +282,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 80000,
                 'stock' => 10,
                 'sku' => 'EID-SMALL-' . strval(rand(100, 999)),
-                'detail_image' => '/images/eid-small.jpg' 
+                'detail_image' => '/storage/images/eid-small.jpg' 
             ],
         ]);
 
@@ -291,7 +291,7 @@ class DatabaseSeeder extends Seeder
             'product_name' => 'Mother Day Flower Box',
             'slug' => 'motherday-flower-box',
             'description' => 'Premium mother day flower box',
-            'main_image' => '/images/motherbox-main.jpg'
+            'main_image' => '/storage/images/motherbox-main.jpg'
         ]);
 
         $motherbox->variants()->createMany([
@@ -301,7 +301,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 200000,
                 'stock' => 10,
                 'sku' => 'MOTHERBOX-LARGE-' . strval(rand(100, 999)),
-                'detail_image' => '/images/motherbox-large.jpg' 
+                'detail_image' => '/storage/images/motherbox-large.jpg' 
             ],
             [
                 'product_id' => $motherbox->id,
@@ -309,7 +309,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 150000,
                 'stock' => 10,
                 'sku' => 'MOTHERBOX-MEDIUM-' . strval(rand(100, 999)),
-                'detail_image' => '/images/motherbox-medium.jpg' 
+                'detail_image' => '/storage/images/motherbox-medium.jpg' 
             ],
             [
                 'product_id' => $motherbox->id,
@@ -317,7 +317,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 80000,
                 'stock' => 10,
                 'sku' => 'MOTHERBOX-SMALL-' . strval(rand(100, 999)),
-                'detail_image' => '/images/motherbox-small.jpg' 
+                'detail_image' => '/storage/images/motherbox-small.jpg' 
             ],
         ]);
 
@@ -326,7 +326,7 @@ class DatabaseSeeder extends Seeder
             'product_name' => 'Uma Flower Box',
             'slug' => 'uma-flower-box',
             'description' => 'Signature Uma Bloemist Flower Box',
-            'main_image' => '/images/umabox-main.jpg'
+            'main_image' => '/storage/images/umabox-main.jpg'
         ]);
 
         $umabox->variants()->createMany([
@@ -336,7 +336,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 200000,
                 'stock' => 10,
                 'sku' => 'UMABOX-LARGE-' . strval(rand(100, 999)),
-                'detail_image' => '/images/umabox-large.jpg' 
+                'detail_image' => '/storage/images/umabox-large.jpg' 
             ],
             [
                 'product_id' => $umabox->id,
@@ -344,7 +344,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 150000,
                 'stock' => 10,
                 'sku' => 'UMABOX-MEDIUM-' . strval(rand(100, 999)),
-                'detail_image' => '/images/umabox-medium.jpg' 
+                'detail_image' => '/storage/images/umabox-medium.jpg' 
             ],
             [
                 'product_id' => $umabox->id,
@@ -352,7 +352,7 @@ class DatabaseSeeder extends Seeder
                 'price' => 80000,
                 'stock' => 10,
                 'sku' => 'UMABOX-SMALL-' . strval(rand(100, 999)),
-                'detail_image' => '/images/umabox-small.jpg' 
+                'detail_image' => '/storage/images/umabox-small.jpg' 
             ],
         ]);
     }
