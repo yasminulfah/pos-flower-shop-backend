@@ -161,8 +161,14 @@ class OrderController extends Controller
             $order->grand_total = $subtotal + $shippingCost + $packagingCost + $greetingCardPrice;
             $order->amount_paid = $request->amount_paid ?? 0;
             $order->amount_change = $request->amount_change ?? 0;
+
+            if ($request->source === 'offline') {
             $order->status = 'completed';
-            $order->source = 'offline';
+            } else {
+            $order->status = 'pending';
+            }
+
+            $order->source = $request->source;
             $order->payment_method = $request->payment_method;
             $order->save();
            
