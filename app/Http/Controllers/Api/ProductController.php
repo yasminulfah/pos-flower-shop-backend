@@ -22,7 +22,7 @@ class ProductController extends Controller
         $search = $request->query('search');
         $categoryId = $request->query('category_id');
         $status = $request->query('status');
-        $limit = $request->query('limit', 5); 
+        $limit = $request->query('limit', 10); 
 
         $query = Product::with(['category', 'variants' => function($query){
             $query->where('is_active', true);
