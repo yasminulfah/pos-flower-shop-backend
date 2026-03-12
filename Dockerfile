@@ -1,5 +1,5 @@
 # Gunakan PHP dengan Apache
-FROM php:8.3-apache
+FROM php:8.3-cli
 
 # Install dependencies sistem
 RUN apt-get update && apt-get install -y \
@@ -24,21 +24,11 @@ RUN apt-get update && apt-get install -y \
     exif \
     pcntl 
 
-# Enable apache modules
-RUN a2enmod rewrite
-
-# Fix MPM conflict (force prefork only)
-RUN rm -f /etc/apache2/mods-enabled/mpm_event.load \
-    && rm -f /etc/apache2/mods-enabled/mpm_event.conf \
-    && rm -f /etc/apache2/mods-enabled/mpm_worker.load \
-    && rm -f /etc/apache2/mods-enabled/mpm_worker.conf \
-    && a2enmod mpm_prefork
-
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Set working directory
-WORKDIR /var/www/html
+WORKDIR /app
 
 # Copy semua file project
 COPY . .
@@ -46,20 +36,15 @@ COPY . .
 # Install dependency Laravel
 RUN composer install --no-dev --optimize-autoloader
 
-# Set Apache public folder
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-
 # Set permission
-RUN chown -R www-data:www-data storage bootstrap/cache
-
-# Copy startup script
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+RUN chmod -R 775 storage bootstrap/cache
 
 # Expose port
 EXPOSE 80
 
-# Start Apache
+# copy start script
+COPY start.sh /start.sh
+
+RUN chmod +x /start.sh
+
 CMD ["/start.sh"]

@@ -2,8 +2,17 @@
 
 echo "Starting Laravel setup..."
 
+# pastikan folder storage ada
+mkdir -p storage/app/public/products
+mkdir -p storage/app/public/variants
+mkdir -p storage/logs
+
+# fix permission
+chmod -R 775 storage
+chmod -R 775 bootstrap/cache
+
 # generate app key 
-php artisan key:generate --force
+php artisan key:generate --force || true
 
 # storage link
 php artisan storage:link || true
@@ -18,4 +27,5 @@ php artisan view:cache
 
 echo "Laravel ready!"
 
-apache2-foreground
+# jalankan server
+php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
