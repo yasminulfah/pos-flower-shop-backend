@@ -1,5 +1,5 @@
 # Gunakan PHP dengan Apache
-FROM php:8.2-apache
+FROM php:8.3-apache
 
 # Install dependencies sistem
 RUN apt-get update && apt-get install -y \
@@ -37,17 +37,20 @@ COPY . .
 # Install dependency Laravel
 RUN composer install --no-dev --optimize-autoloader
 
-# Set permission
-RUN chown -R www-data:www-data /var/www/html/storage \
-    && chown -R www-data:www-data /var/www/html/bootstrap/cache
-
-# Apache document root ke public
+# Set Apache public folder
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+
+# Set permission
+RUN chown -R www-data:www-data storage bootstrap/cache
+
+# Copy startup script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
 # Expose port
 EXPOSE 80
 
 # Start Apache
-CMD ["apache2-foreground"]
+CMD ["/start.sh"]
