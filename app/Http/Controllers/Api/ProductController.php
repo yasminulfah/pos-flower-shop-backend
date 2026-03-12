@@ -212,10 +212,14 @@ class ProductController extends Controller
                         $variantData['detail_image'] = $v['detail_image']->store('products/variants', 'public');
                     }
 
-                    $product->variants()->updateOrCreate(
-                        ['id' => $v['id'] ?? null],
-                        $variantData
-                    );
+                    if (!empty($v['id'])) {
+                        $variant = $product->variants()->find($v['id']);
+                        if ($variant) {
+                            $variant->update($variantData);
+                        }
+                    } else {
+                        $product->variants()->create($variantData);
+                    }
                 }
             }
 
