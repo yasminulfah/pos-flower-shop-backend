@@ -18,7 +18,10 @@ php artisan key:generate --force || true
 php artisan storage:link || true
 
 # run migration
-php artisan migrate --force || true
+php artisan migrate --force 
+
+# jalankan seeder
+php artisan db:seed --force
 
 # cache config
 php artisan config:cache
